@@ -1,6 +1,9 @@
 package model
 
-import "tianwei.pro/business/model"
+import (
+	"github.com/astaxie/beego/orm"
+	"tianwei.pro/business/model"
+)
 
 type User struct {
 
@@ -26,4 +29,8 @@ type User struct {
 
 	// 退出时记录哪些端需要重新登录
 	NeedLoginTerminus string `orm:"size(120)"`
+}
+
+func init() {
+	orm.RegisterModelWithPrefix("sam_", &User{})
 }
