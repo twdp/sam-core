@@ -38,7 +38,7 @@ func (u *UserFacadeImpl) Login(ctx context.Context, loginParam *req.EmailLoginDt
 			},
 			UserName: user.UserName,
 		}
-		if token, err := tokenFacadeImpl.EncodeToken(userDto); err != nil {
+		if token, err := tokenFacadeImpl.EncodeToken(userDto, loginParam.Terminal); err != nil {
 			return err
 		} else {
 			reply.Token = token

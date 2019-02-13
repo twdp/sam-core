@@ -6,5 +6,5 @@ import (
 
 type TokenFacade interface {
 	DecodeToken(token string)(*dto.UserDto, error)
-	EncodeToken(user *dto.UserDto) (string, error)
+	EncodeToken(user *dto.UserDto, Terminal int8) (string, error)
 }

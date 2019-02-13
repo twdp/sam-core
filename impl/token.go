@@ -24,6 +24,9 @@ type SamClaims struct {
 	jwt.StandardClaims
 
 	UserName string
+
+	// 给哪个端的
+	Terminal int8
 }
 
 func init() {
@@ -76,7 +79,7 @@ func (t *TokenFacadeImpl) DecodeToken(tokenString string) (*dto.UserDto, error) 
 	}
 }
 
-func (t *TokenFacadeImpl) EncodeToken(user *dto.UserDto) (string, error) {
+func (t *TokenFacadeImpl) EncodeToken(user *dto.UserDto, Terminal int8) (string, error) {
 
 	// 默认30天过期
 	expiredTime := time.Duration(config.Conf.DefaultInt64("tokenExpire", 24*60*30))
@@ -88,6 +91,7 @@ func (t *TokenFacadeImpl) EncodeToken(user *dto.UserDto) (string, error) {
 	samClaims := &SamClaims{
 		StandardClaims: s,
 		UserName:       user.UserName,
+		Terminal:       Terminal,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS384, samClaims)
