@@ -3,12 +3,9 @@ package main
 import (
 	"flag"
 	"github.com/astaxie/beego/orm"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/smallnest/rpcx/server"
 	"tianwei.pro/sam-core/config"
-	_ "tianwei.pro/sam-core/config"
-	_ "tianwei.pro/sam-core/impl"
-	_ "tianwei.pro/sam-core/model"
+	_ "tianwei.pro/sam-core/init"
 	"tianwei.pro/sam-core/rpc"
 )
 

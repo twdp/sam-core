@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	"tianwei.pro/business"
 	"tianwei.pro/sam-core/dto"
@@ -27,6 +28,7 @@ type UserFacadeImpl struct {
 }
 
 func (u *UserFacadeImpl) Login(ctx context.Context, loginParam *req.EmailLoginDto, reply *res.LoginDto) error {
+	fmt.Println(loginParam)
 	if user, err := u.userRepository.FindByEmail(loginParam.Email); err != nil {
 		return err
 	} else if _, err := business.ValidateCrypto(loginParam.Password, user.Password); err != nil {
