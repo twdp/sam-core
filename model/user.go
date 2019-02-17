@@ -13,6 +13,8 @@ type User struct {
 
 	DisplayName string `orm:"size(64)"`
 
+	IdCard string `orm:"size(20);unique"`
+
 	Avatar string
 
 	Email string `orm:"size(64);unique"`

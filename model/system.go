@@ -7,12 +7,16 @@ import (
 
 // 对接的系统
 type System struct {
-
 	model.Base
 
 	Status int8
 
-	Name string
+	Name string `orm:"size(100);unique"`
+
+	Description string
+
+	// 系统头像
+	Avatar string
 
 	AppKey string `orm:"size(64);unique"`
 
@@ -25,7 +29,6 @@ type System struct {
 	// 1 数据权限与操作 权限拉平
 	// 2 层级数据权限和操作权限
 	Strategy int8
-
 
 	// 使用了模板角色，是否对模板角色可见
 	// 管理员手工给员工改角色时可见

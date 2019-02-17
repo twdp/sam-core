@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego/orm"
 	"tianwei.pro/business"
 	"tianwei.pro/sam-agent"
 	"tianwei.pro/sam-core/model"
@@ -13,6 +14,7 @@ import (
 )
 
 var (
+	agent               *SamCoreAgentImpl
 	AppKeyOrSecretError = errors.New("请检查appKey或secret")
 	SystemError         = errors.New("权限系统错误")
 )
@@ -24,7 +26,7 @@ type SamCoreAgentImpl struct {
 }
 
 func init() {
-	agent := &SamCoreAgentImpl{
+	agent = &SamCoreAgentImpl{
 		systemRepository: repository.SystemRepositoryInstance,
 		apiRepository:    repository.ApiRepositoryInstance,
 	}
@@ -33,11 +35,11 @@ func init() {
 
 func (s *SamCoreAgentImpl) LoadSystemInfo(ctx context.Context, param *sam_agent.SystemInfoParam, reply *sam_agent.SystemInfo) error {
 	if systemInfo, err := s.verifySecret(param.AppKey, param.Secret); err != nil {
-		return err
+		return reply.Error(err)
 	} else {
 		routes, err := s.apiRepository.FindUrlBySystemId(systemInfo.Id)
 		if business.IsError(err) {
-			return err
+			return reply.Error(err)
 		}
 		var apis []*sam_agent.Router
 
@@ -77,13 +79,41 @@ func (s *SamCoreAgentImpl) verifySecret(appKey, secret string) (*model.System, e
 func (s *SamCoreAgentImpl) VerifyToken(ctx context.Context, param *sam_agent.VerifyTokenParam, reply *sam_agent.UserInfo) error {
 	system, err := s.verifySecret(param.AppKey, param.Secret)
 	if err != nil {
-		return err
+		return reply.Error(err)
 	}
 	if user, err := tokenFacadeImpl.DecodeToken(param.Token); err != nil {
-		return err
-	} else {
-		fmt.Println(user)
+		return reply.Error(err)
+	} else if err := s.loadUserInfo(user.Id, reply); err != nil {
+		return reply.Error(err)
 	}
+
+	// todo:: add cache
+
+	var userRoles []*model.UserRole
+	if _, err := orm.NewOrm().QueryTable(&model.UserRole{}).Filter("SystemId", system.Id).Filter("UserId", reply.Id).All(&userRoles); err != nil {
+		logs.Error("read user role mapping failed. userInfo: %v, system: %v, err: %v", reply, system, err)
+		return reply.Error(SystemError)
+	}
+	if len(userRoles) == 0 {
+		return nil
+	}
+
 	fmt.Println(system)
+	return nil
+}
+
+func (s *SamCoreAgentImpl) loadUserInfo(userId int64, reply *sam_agent.UserInfo) error {
+	u := &model.User{}
+	u.Id = userId
+	if err := orm.NewOrm().Read(u); err != nil {
+		logs.Error("find user by token failed. err: %v", err)
+		return reply.Error(SystemError)
+	}
+	reply.Id = u.Id
+	reply.UserName = u.UserName
+	reply.Avatar = u.Avatar
+	reply.Email = u.Email
+	reply.Phone = u.Phone
+
 	return nil
 }

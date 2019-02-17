@@ -17,7 +17,6 @@ var (
 	tokenFacadeImpl facade.TokenFacade
 	TokenExpired    = errors.New("token已过期,请重新登录")
 	TokenInvalid    = errors.New("token验证失败")
-	SystemErr       = errors.New("系统错误")
 )
 
 type SamClaims struct {

@@ -48,8 +48,8 @@ type Api struct {
 	// 需要进行角色权限验证
 	VerificationType int8
 
-	// 选择角色时是否展示
-	Display bool
+	// 选择角色时是否隐藏
+	Hidden bool
 
 	// 替换的url id
 	// 比如： /v1/user/list 升级到/v2/user/list
@@ -63,7 +63,7 @@ type Api struct {
 // 多字段唯一键
 func (a *Api) TableUnique() [][]string {
 	return [][]string{
-		{ "Path", "Method", "SystemId", },
+		{"Path", "Method", "SystemId",},
 	}
 }
 
